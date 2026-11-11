@@ -10,3 +10,9 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC
     SQLITE_OMIT_DEPRECATED=1
     SQLITE_OMIT_LOAD_EXTENSION=1
     SQLITE_OMIT_WAL=1)
+
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    # Use POSIX file locking inside the sandbox; macOS host UUID locking is unavailable.
+    target_compile_definitions(${PROJECT_NAME} PRIVATE SQLITE_ENABLE_LOCKING_STYLE=0 HAVE_GETHOSTUUID=0)
+    target_compile_options(${PROJECT_NAME} PRIVATE -Wno-shorten-64-to-32)
+endif()

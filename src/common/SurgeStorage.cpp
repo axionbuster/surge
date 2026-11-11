@@ -33,6 +33,9 @@
 #include "DebugHelpers.h"
 
 #include "sst/plugininfra/paths.h"
+#if SURGE_IOS
+#include "ios/SurgeIOSPaths.h"
+#endif
 
 #include <iostream>
 #include <iomanip>
@@ -188,7 +191,11 @@ SurgeStorage::SurgeStorage(const SurgeStorage::SurgeStorageConfig &config) : oth
     bool isFactoryPortable{false};
     bool isUserPortable{false};
 
-#if MAC
+#if SURGE_IOS
+    datapath = hasSuppliedDataPath ? fs::path{suppliedDataPath} : Surge::Platform::iosFactoryDataPath();
+    if (userDataPath.empty())
+        userDataPath = calculateStandardUserDataPath(sxt);
+#elif MAC
     if (!hasSuppliedDataPath)
     {
         auto shareddp = sst::plugininfra::paths::bestLibrarySharedFolderPathFor(sxt);

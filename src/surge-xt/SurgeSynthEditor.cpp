@@ -595,10 +595,12 @@ void SurgeSynthEditor::resized()
         getConstrainer()->setFixedAspectRatio(ar);
 
     auto zfn = std::min(wR, hR);
+#if !JUCE_IOS
     if (wR < 1 && hR < 1)
         zfn = std::max(wR, hR);
     if ((wR - 1) * (hR - 1) < 0)
         zfn = std::min(zfn, 1.0);
+#endif
 
     zfn = 100.0 * zfn / sge->getZoomFactor();
 

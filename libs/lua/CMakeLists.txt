@@ -69,14 +69,12 @@ elseif(_surge_lua_impl STREQUAL "puc")
     ${_lua_src}/ldump.c
     ${_lua_src}/lfunc.c
     ${_lua_src}/lgc.c
-    ${_lua_src}/liolib.c
     ${_lua_src}/llex.c
     ${_lua_src}/lmathlib.c
     ${_lua_src}/lmem.c
     ${_lua_src}/loadlib.c
     ${_lua_src}/lobject.c
     ${_lua_src}/lopcodes.c
-    ${_lua_src}/loslib.c
     ${_lua_src}/lparser.c
     ${_lua_src}/lstate.c
     ${_lua_src}/lstring.c
@@ -92,6 +90,13 @@ elseif(_surge_lua_impl STREQUAL "puc")
     ${CMAKE_CURRENT_LIST_DIR}/surge-lua-openlibs.c
   )
 
+  if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    # Formula and wavetable sandboxes expose neither library. iOS forbids subprocess APIs.
+    target_compile_definitions(lua-5.2.4 PRIVATE SURGE_LUA_NO_OS_IO=1)
+  else()
+    target_sources(lua-5.2.4 PRIVATE ${_lua_src}/liolib.c ${_lua_src}/loslib.c)
+  endif()
+
   target_include_directories(lua-5.2.4 PUBLIC ${_lua_src})
 
   # PUBLIC because it gates header-level things Surge itself relies on: the
@@ -103,7 +108,9 @@ elseif(_surge_lua_impl STREQUAL "puc")
   # library was compiled with. On Windows luaconf.h picks up _WIN32 by itself.
   # LUA_USE_LINUX is deliberately avoided: it pulls in LUA_USE_DLOPEN (-ldl) and
   # LUA_USE_READLINE, and both only serve the standalone interpreter we omit.
-  if(APPLE)
+  if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    target_compile_definitions(lua-5.2.4 PUBLIC LUA_USE_POSIX)
+  elseif(APPLE)
     target_compile_definitions(lua-5.2.4 PUBLIC LUA_USE_MACOSX)
   elseif(UNIX)
     target_compile_definitions(lua-5.2.4 PUBLIC LUA_USE_POSIX)

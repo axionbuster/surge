@@ -23,11 +23,13 @@ else()
   set(SURGE_XT_PRODUCT_NAME "Surge XT")
 endif()
 
+set(SURGE_XT_BUNDLE_ID "org.surge-synth-team.surge-xt" CACHE STRING "Surge XT application bundle identifier")
+
 juce_add_plugin(${PROJECT_NAME}
   PRODUCT_NAME ${SURGE_XT_PRODUCT_NAME}
   COMPANY_NAME "Surge Synth Team"
   COMPANY_WEBSITE "https://surge-synth-team.org/"
-  BUNDLE_ID "org.surge-synth-team.surge-xt"
+  BUNDLE_ID "${SURGE_XT_BUNDLE_ID}"
   PLUGIN_MANUFACTURER_CODE VmbA
   PLUGIN_CODE SgXT
 
@@ -53,8 +55,12 @@ juce_add_plugin(${PROJECT_NAME}
   AU_MAIN_TYPE kAudioUnitType_MusicDevice
   AU_SANDBOX_SAFE TRUE
 
-  # JUCE7 made a different choice than community branch
-  LV2_URI https://surge-synthesizer.github.io/lv2/surge-xt
+  TARGETED_DEVICE_FAMILY "1,2"
+  BACKGROUND_AUDIO_ENABLED TRUE
+  IPHONE_SCREEN_ORIENTATIONS UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+  IPAD_SCREEN_ORIENTATIONS UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown
+                          UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight
+
   LV2URI https://surge-synthesizer.github.io/lv2/surge-xt
 
   LV2_SHARED_LIBRARY_NAME SurgeXT
@@ -257,9 +263,11 @@ target_include_directories(${PROJECT_NAME}
   ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-add_subdirectory(cli)
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "iOS")
+  add_subdirectory(cli)
+endif()
 
-if(APPLE)
+if(APPLE AND NOT CMAKE_SYSTEM_NAME STREQUAL "iOS" AND TARGET ${PROJECT_NAME}_Standalone)
   add_dependencies(${PROJECT_NAME}_Standalone ${PROJECT_NAME}-cli)
   get_property(cliname TARGET ${PROJECT_NAME}-cli PROPERTY RUNTIME_OUTPUT_DIRECTORY)
   get_property(saname TARGET ${PROJECT_NAME}_Standalone PROPERTY RUNTIME_OUTPUT_DIRECTORY)
@@ -273,6 +281,11 @@ if(APPLE)
     COMMAND echo "Relocating CLI executable into standalone"
     COMMAND ${CMAKE_COMMAND} -E copy "${cliexe}" "${saname}/Surge XT.app/Contents/MacOS"
   )
+endif()
+
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+  include(${CMAKE_SOURCE_DIR}/cmake/ios.cmake)
+  surge_bundle_ios_factory_data(${PROJECT_NAME})
 endif()
 
 surge_juce_package(${PROJECT_NAME} "Surge XT")

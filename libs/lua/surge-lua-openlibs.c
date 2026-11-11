@@ -41,8 +41,10 @@ static const luaL_Reg loadedlibs[] = {{"_G", luaopen_base},
                                       {LUA_LOADLIBNAME, luaopen_package},
                                       {LUA_COLIBNAME, luaopen_coroutine},
                                       {LUA_TABLIBNAME, luaopen_table},
+#if !SURGE_LUA_NO_OS_IO
                                       {LUA_IOLIBNAME, luaopen_io},
                                       {LUA_OSLIBNAME, luaopen_os},
+#endif
                                       {LUA_STRLIBNAME, luaopen_string},
                                       {"bit", luaopen_bit},
                                       {LUA_MATHLIBNAME, luaopen_math},

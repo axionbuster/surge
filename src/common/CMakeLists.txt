@@ -279,10 +279,15 @@ target_compile_definitions(${PROJECT_NAME} PUBLIC SURGE_COMPILE_BLOCK_SIZE=${SUR
 
 if(APPLE)
   target_compile_definitions(${PROJECT_NAME} PUBLIC MAC=1)
+  if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC SURGE_IOS=1)
+    target_sources(${PROJECT_NAME} PRIVATE ../platform/ios/SurgeIOSPaths.mm)
+  else()
+    target_link_libraries(${PROJECT_NAME} PRIVATE "-framework CoreServices")
+  endif()
   target_link_libraries(${PROJECT_NAME}
     PUBLIC surge::simde
     PRIVATE
-    "-framework CoreServices"
     "-framework CoreFoundation"
     "-framework Foundation"
   )

@@ -1,4 +1,17 @@
 # vi:set sw=2 et:
+if(CMAKE_SYSTEM_NAME STREQUAL "iOS")
+  # iOS hosts discover the AUv3 embedded in the standalone containing app.
+  set(SURGE_SKIP_VST3 TRUE)
+  set(SURGE_BUILD_CLAP FALSE)
+  set(SURGE_BUILD_FX FALSE)
+  set(SURGE_BUILD_TESTRUNNER FALSE)
+  set(SURGE_XT_BUILD_AUV3 TRUE)
+  set(SURGE_SKIP_ODDSOUND_MTS TRUE)
+  if(NOT SURGE_LUA_IMPL)
+    set(SURGE_LUA_IMPL puc)
+  endif()
+endif()
+
 option(SURGE_BUILD_XT "Build Surge XT plugin" ON)
 option(SURGE_BUILD_FX "Build Surge XT Effects plugin" ON)
 option(SURGE_BUILD_PYTHON_BINDINGS "Build Surge XT Python bindings" OFF)
